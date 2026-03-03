@@ -1,0 +1,4 @@
+# Core memory extraction system dependencies
+python-dotenv
+neo4j
+openai

@@ -1,0 +1,12 @@
+# Voice agent dependencies (LiveKit/Mem0)
+# These are separate from the core memory extraction system
+# Install with: pip install -r requirements-voice.txt
+
+livekit
+livekit-agents
+livekit-plugins-silero
+livekit-plugins-deepgram
+livekit-plugins-openai
+livekit-plugins-turn-detector
+livekit-plugins-noise-cancellation
+mem0ai
