@@ -34,6 +34,7 @@ memory/
 ├── entrypoints/
 │   ├── extract_diary_memories.py  # Extract memories from diary entries
 │   ├── chat.py                    # Interactive chat interface
+│   ├── mcp_server.py              # MCP server for AI agent integration
 │   └── embed_existing.py          # Backfill embeddings for existing nodes
 │
 ├── tests/
@@ -104,6 +105,37 @@ python -m entrypoints.extract_diary_memories "/path/to/diary.md" "user_123"
 **Batch process all diaries:**
 ```bash
 python -m entrypoints.extract_diary_memories --dir "/path/to/diaries/" "user_123"
+```
+
+### Query Memories via MCP Server
+
+The MCP (Model Context Protocol) server exposes memory retrieval as tools for AI agents (Claude Desktop, Cursor, VS Code, etc.). Zero extra dependencies — works over stdio JSON-RPC.
+
+```bash
+source .venv/bin/activate && python -m entrypoints.mcp_server
+```
+
+**Available tools:**
+
+| Tool | Description |
+|------|-------------|
+| `search_experiences` | Semantic vector search over life events |
+| `search_truths` | Semantic search over personal beliefs, patterns, and goals |
+| `get_experiences_by_emotion` | All experiences tied to a specific emotion |
+| `get_emotional_patterns` | Emotion frequency, intensity, and valence stats |
+
+**Configure in your MCP client:**
+
+```json
+{
+  "mcpServers": {
+    "memora": {
+      "command": "python",
+      "args": ["-m", "entrypoints.mcp_server"],
+      "cwd": "/path/to/memory"
+    }
+  }
+}
 ```
 
 ### Query Memories via Chat Interface
