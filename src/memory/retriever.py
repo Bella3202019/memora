@@ -7,7 +7,7 @@ from src.memory.embedder import embed
 
 logger = logging.getLogger(__name__)
 
-USER_ID = os.getenv("USER_ID", "uuMqncc7FDTvujAXnE54W40is5A3")
+USER_ID = os.getenv("USER_ID", "default_user")
 
 
 async def search_experiences(query: str, top_k: int = 5) -> list[dict[str, Any]]:
