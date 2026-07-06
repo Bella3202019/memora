@@ -1,0 +1,246 @@
+{
+  "description": "Gold-labeled diary entries for evaluating memory extraction. Each case lists the memories a careful human annotator would extract, plus traps (content that should NOT be extracted).",
+  "cases": [
+    {
+      "id": "simple-explicit",
+      "notes": "Baseline: one experience, one explicit emotion, one explicit truth.",
+      "diary": "Today I had coffee with Mara at the little bookstore cafe on Valencia. We talked for two hours about her decision to leave her job and travel. I felt so alive the whole time. I keep noticing this: I feel most alive when I'm in a deep one-on-one conversation.",
+      "gold": {
+        "experiences": [
+          {"description": "Had coffee with Mara at a bookstore cafe on Valencia and talked for two hours about her decision to leave her job and travel", "type": "friendship", "people_involved": ["Mara"]}
+        ],
+        "emotions": [
+          {"name": "aliveness", "valence": "positive"}
+        ],
+        "truths": [
+          {"content": "I feel most alive in deep one-on-one conversations", "type": "pattern"}
+        ]
+      },
+      "traps": []
+    },
+    {
+      "id": "multi-experience-separation",
+      "notes": "Atomicity: three distinct events must become three experiences, not one.",
+      "diary": "Busy Saturday. In the morning I finally fixed the flaky test in our eval pipeline that had been failing for a week. Then I biked across the bridge to Sausalito with Ken - the fog cleared right as we crossed. In the evening I cooked dumplings with my mom over video call, she taught me her folding trick.",
+      "gold": {
+        "experiences": [
+          {"description": "Fixed the flaky test in the eval pipeline that had been failing for a week", "type": "career", "people_involved": []},
+          {"description": "Biked across the bridge to Sausalito with Ken as the fog cleared", "type": "hobbies", "people_involved": ["Ken"]},
+          {"description": "Cooked dumplings with mom over video call and learned her folding trick", "type": "family", "people_involved": ["mom"]}
+        ],
+        "emotions": [],
+        "truths": []
+      },
+      "traps": []
+    },
+    {
+      "id": "implied-emotion-no-truth",
+      "notes": "Emotion is implied, never named. There is NO self-insight - extractor should not invent truths.",
+      "diary": "Got the rejection email this morning. I read it three times. I closed the laptop and went for a long walk without music, and I didn't tell anyone about it all day.",
+      "gold": {
+        "experiences": [
+          {"description": "Received a rejection email, read it three times, went for a long walk without music and told no one", "type": "career", "people_involved": []}
+        ],
+        "emotions": [
+          {"name": "disappointment", "valence": "negative", "accept_synonyms": ["sadness", "hurt", "dejection", "rejection"]}
+        ],
+        "truths": []
+      },
+      "traps": ["Any truth extracted from this entry is a hallucination - the writer states no self-knowledge."]
+    },
+    {
+      "id": "reflection-heavy",
+      "notes": "One small experience, multiple distinct truths of different types.",
+      "diary": "Quiet Sunday, just journaling at home. I've been thinking about why I keep saying yes to everything. I always overcommit when I'm afraid of disappointing people. But honestly, I believe rest is a form of discipline, not laziness. Next quarter I want to protect one full day a week with no plans.",
+      "gold": {
+        "experiences": [
+          {"description": "Spent a quiet Sunday journaling at home", "type": "personal_growth", "people_involved": []}
+        ],
+        "emotions": [],
+        "truths": [
+          {"content": "I always overcommit when I'm afraid of disappointing people", "type": "pattern"},
+          {"content": "I believe rest is a form of discipline, not laziness", "type": "belief"},
+          {"content": "I want to protect one full day a week with no plans", "type": "goal"}
+        ]
+      },
+      "traps": []
+    },
+    {
+      "id": "distractors-hypotheticals",
+      "notes": "Plans, other people's stories, and hypotheticals must NOT become the user's experiences.",
+      "diary": "Lunch with Priya today at the taqueria. She told me this wild story about how she once got stuck overnight in the Denver airport and made friends with a whole band. Tomorrow I'm supposed to fly to Seattle for the conference, and if the demo goes well we might land the client. I'm nervous about the demo.",
+      "gold": {
+        "experiences": [
+          {"description": "Had lunch with Priya at the taqueria, where she shared a story about being stuck overnight in the Denver airport", "type": "friendship", "people_involved": ["Priya"]}
+        ],
+        "emotions": [
+          {"name": "nervousness", "valence": "negative", "accept_synonyms": ["anxiety", "nervous", "worry", "apprehension"]}
+        ],
+        "truths": []
+      },
+      "traps": [
+        "Priya's airport story is HER experience, not the user's - must not appear as a user experience.",
+        "The Seattle flight and demo are tomorrow (future) - not experiences.",
+        "Landing the client is hypothetical - not an experience."
+      ]
+    },
+    {
+      "id": "mundane-minimal",
+      "notes": "Low-content entry. Over-extraction here signals noise.",
+      "diary": "Long day. Meetings back to back. Ate leftovers. Slept early.",
+      "gold": {
+        "experiences": [
+          {"description": "Had a long day of back-to-back meetings", "type": "career", "people_involved": []}
+        ],
+        "emotions": [
+          {"name": "tiredness", "valence": "negative", "accept_synonyms": ["exhaustion", "fatigue", "weariness"], "optional": true}
+        ],
+        "truths": []
+      },
+      "traps": ["Eating leftovers and sleeping early are routine actions; extracting them as separate significant experiences is acceptable but extracting truths from this entry is not."]
+    },
+    {
+      "id": "negation-not-occurrence",
+      "notes": "Events that almost happened or did not happen must not become experiences.",
+      "diary": "I almost texted my ex last night. Typed the whole message, read it twice, deleted it. I'm proud I didn't send it. I know by now that I reach for old comfort whenever I'm lonely.",
+      "gold": {
+        "experiences": [
+          {"description": "Typed a whole message to my ex, read it twice, and deleted it without sending", "type": "personal_growth", "people_involved": []}
+        ],
+        "emotions": [
+          {"name": "pride", "valence": "positive"}
+        ],
+        "truths": [
+          {"content": "I reach for old comfort whenever I'm lonely", "type": "pattern"}
+        ]
+      },
+      "traps": ["Texting the ex did NOT happen - 'contacted my ex' or 'sent a message' as an experience is a fabrication."]
+    },
+    {
+      "id": "media-secondhand",
+      "notes": "Content consumed from media is not the user's lived experience.",
+      "diary": "Listened to a podcast on the walk home where a founder described sleeping in her office for a year to save the company. Can't stop thinking about it. I want to build things without burning myself down.",
+      "gold": {
+        "experiences": [
+          {"description": "Listened to a podcast on the walk home about a founder who slept in her office for a year", "type": "personal_growth", "people_involved": []}
+        ],
+        "emotions": [],
+        "truths": [
+          {"content": "I want to build things without burning myself down", "type": "goal"}
+        ]
+      },
+      "traps": ["Sleeping in an office for a year is the founder's experience from a podcast - never the user's."]
+    },
+    {
+      "id": "dream-boundary",
+      "notes": "Dream content is not a real event; having the dream is.",
+      "diary": "Woke at 4am from a dream where I was back in Shanghai giving a talk in the old campus hall. Couldn't fall back asleep, so I made tea and watched the street lights until sunrise. I miss home more than I usually admit.",
+      "gold": {
+        "experiences": [
+          {"description": "Woke at 4am from a dream about being back in Shanghai", "type": "health", "people_involved": []},
+          {"description": "Made tea and watched the street lights until sunrise, unable to fall back asleep", "type": "personal_growth", "people_involved": []}
+        ],
+        "emotions": [
+          {"name": "homesickness", "valence": "negative", "accept_synonyms": ["longing", "nostalgia", "missing home", "yearning"]}
+        ],
+        "truths": [
+          {"content": "I miss home more than I usually admit", "type": "pattern"}
+        ]
+      },
+      "traps": ["Giving a talk in Shanghai is dream content - it must not appear as a real experience."]
+    },
+    {
+      "id": "bilingual-mixed",
+      "notes": "Code-switched Chinese/English entry - extraction should be language-agnostic.",
+      "diary": "今天和奶奶通了电话，她教我做红烧肉的秘诀。Her voice sounded weaker than last time and it scared me. 我想今年冬天一定要回家看她。",
+      "gold": {
+        "experiences": [
+          {"description": "Had a phone call with grandma, who taught me her secret for making red-braised pork", "type": "family", "people_involved": ["grandma"]}
+        ],
+        "emotions": [
+          {"name": "fear", "valence": "negative", "accept_synonyms": ["worry", "scared", "concern", "anxiety"]}
+        ],
+        "truths": [
+          {"content": "I want to go home this winter to see my grandma", "type": "goal"}
+        ]
+      },
+      "traps": []
+    },
+    {
+      "id": "long-entry-relationships",
+      "notes": "Multi-item entry with gold relationship edges - tests linking, not just extraction.",
+      "diary": "Demo day finally came. Our agent handled all twelve live calls without a single dropped turn, and when the last call ended the whole room clapped. I felt proud in a way I haven't felt in years. Afterwards Wei and I walked out to the pier and debriefed for an hour, and out there over the water I felt completely calm. Watching the team celebrate tonight, I realized I do my best work when someone actually depends on it.",
+      "gold": {
+        "experiences": [
+          {"description": "Our agent handled all twelve live demo calls without a dropped turn and the room clapped", "type": "career", "people_involved": []},
+          {"description": "Walked to the pier with Wei and debriefed for an hour after the demo", "type": "friendship", "people_involved": ["Wei"]}
+        ],
+        "emotions": [
+          {"name": "pride", "valence": "positive"},
+          {"name": "calm", "valence": "positive", "accept_synonyms": ["peace", "calmness", "serenity"]}
+        ],
+        "truths": [
+          {"content": "I do my best work when someone actually depends on it", "type": "pattern"}
+        ]
+      },
+      "gold_relationships": {
+        "experience_evoked_emotion": [
+          {"experience_index": 0, "emotion_index": 0},
+          {"experience_index": 1, "emotion_index": 1}
+        ],
+        "truth_distilled_from_experience": [
+          {"truth_index": 0, "experience_indices": [0]}
+        ]
+      },
+      "traps": []
+    },
+    {
+      "id": "emotion-only-venting",
+      "notes": "Pure mood entry with no clear events - must not manufacture experiences or truths.",
+      "diary": "Everything felt heavy today. No reason. Just heavy. Even replying to messages felt like lifting weights.",
+      "gold": {
+        "experiences": [
+          {"description": "Struggled through the day, even replying to messages felt effortful", "type": "health", "people_involved": [], "optional": true}
+        ],
+        "emotions": [
+          {"name": "heaviness", "valence": "negative", "accept_synonyms": ["sadness", "depression", "melancholy", "weariness", "low"]}
+        ],
+        "truths": []
+      },
+      "traps": ["No self-knowledge is claimed - any extracted truth is invented."]
+    },
+    {
+      "id": "past-recollection-guard",
+      "notes": "REGRESSION GUARD: recollections of the user's OWN past are legitimate memories - exclusion rules must not suppress them.",
+      "diary": "Passing the conservatory today reminded me of piano lessons with Ms. Chen when I was nine - she would tap the rhythm on the piano lid and I would pretend to hate it. I secretly loved the discipline. Funny what stays with you.",
+      "gold": {
+        "experiences": [
+          {"description": "Took piano lessons with Ms. Chen at age nine, where she tapped rhythms on the piano lid and I pretended to hate it", "type": "education", "people_involved": ["Ms. Chen"]}
+        ],
+        "emotions": [
+          {"name": "nostalgia", "valence": "positive", "accept_synonyms": ["fondness", "warmth", "wistfulness"], "optional": true}
+        ],
+        "truths": [
+          {"content": "I secretly loved the discipline of piano lessons", "type": "preference"}
+        ]
+      },
+      "traps": []
+    },
+    {
+      "id": "future-vs-real-action-guard",
+      "notes": "REGRESSION GUARD: real actions taken toward a future event ARE experiences; only the future event itself is excluded.",
+      "diary": "I told Ana I'll run the half marathon with her in October. I want to actually train for it this time instead of winging it. Signed up for the race tonight and paid the fee before I could talk myself out of it.",
+      "gold": {
+        "experiences": [
+          {"description": "Told Ana I would run the half marathon with her in October", "type": "friendship", "people_involved": ["Ana"]},
+          {"description": "Signed up for the half marathon and paid the fee tonight", "type": "hobbies", "people_involved": []}
+        ],
+        "emotions": [],
+        "truths": [
+          {"content": "I want to actually train for the half marathon this time instead of winging it", "type": "goal"}
+        ]
+      },
+      "traps": ["Running the October race has not happened yet - it is not an experience. But telling Ana and signing up DID happen and must be extracted."]
+    }
+  ]
+}

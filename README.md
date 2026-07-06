@@ -1,6 +1,19 @@
 # Memora - Personal Memory Graph
 
-A system for extracting and storing personal memories from diary entries into a Neo4j graph database. Extracts episodic memory (experiences) and personal semantic memory (truths), along with emotions, using LLM-based analysis. 
+A system for extracting and storing personal memories from diary entries into a Neo4j graph database. Extracts episodic memory (experiences) and personal semantic memory (truths), along with emotions, using LLM-based analysis.
+
+## Evaluated, not vibes
+
+Extraction quality is measured by an automated eval suite ([`evals/`](evals/README.md)):
+14 gold-labeled cases covering a taxonomy of failure modes (hallucinated memories,
+dream/negation/secondhand boundaries, atomicity, bilingual entries, relationship edges),
+scored by deterministic checks plus a cross-family LLM judge (DeepSeek judging GPT
+extractions), with repeat trials and reproducible run manifests.
+
+Latest result — prompt v1 → v2 (3 trials × 14 cases): **mean F1 0.838 → 0.926,
+hallucinations −78%** (23 → 5 per trial). The eval's regression guards also surface the
+cost: v2 mildly over-suppresses own-past recollections — the next iteration target.
+See [`evals/results/compare-v1-vs-v2.md`](evals/results/compare-v1-vs-v2.md).
 
 
 ## Overview

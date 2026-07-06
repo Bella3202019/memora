@@ -1,0 +1,79 @@
+{
+  "run_file": "evals/results/run-20260705-182140-v2.json",
+  "primary_judge": "deepseek:deepseek-chat",
+  "secondary_judge": "claude-cli",
+  "cases": [
+    {
+      "id": "simple-explicit",
+      "match_agreement": 0.833,
+      "hallucination_agreement": 1.0
+    },
+    {
+      "id": "multi-experience-separation",
+      "match_agreement": 1.0,
+      "hallucination_agreement": 1.0
+    },
+    {
+      "id": "implied-emotion-no-truth",
+      "match_agreement": 0.75,
+      "hallucination_agreement": 1.0
+    },
+    {
+      "id": "reflection-heavy",
+      "match_agreement": 1.0,
+      "hallucination_agreement": 0.667
+    },
+    {
+      "id": "distractors-hypotheticals",
+      "match_agreement": 1.0,
+      "hallucination_agreement": 0.667
+    },
+    {
+      "id": "mundane-minimal",
+      "match_agreement": 0.833,
+      "hallucination_agreement": 1.0
+    },
+    {
+      "id": "negation-not-occurrence",
+      "match_agreement": 1.0,
+      "hallucination_agreement": 1.0
+    },
+    {
+      "id": "media-secondhand",
+      "match_agreement": 1.0,
+      "hallucination_agreement": 0.667
+    },
+    {
+      "id": "dream-boundary",
+      "match_agreement": 0.778,
+      "hallucination_agreement": 1.0
+    },
+    {
+      "id": "bilingual-mixed",
+      "match_agreement": 1.0,
+      "hallucination_agreement": 1.0
+    },
+    {
+      "id": "long-entry-relationships",
+      "match_agreement": 1.0,
+      "hallucination_agreement": 1.0
+    },
+    {
+      "id": "emotion-only-venting",
+      "match_agreement": 1.0,
+      "hallucination_agreement": 1.0
+    },
+    {
+      "id": "past-recollection-guard",
+      "match_agreement": 0.778,
+      "hallucination_agreement": 0.667
+    },
+    {
+      "id": "future-vs-real-action-guard",
+      "match_agreement": 1.0,
+      "hallucination_agreement": 0.667
+    }
+  ],
+  "mean_match_agreement": 0.927,
+  "mean_hallucination_agreement": 0.881
+}

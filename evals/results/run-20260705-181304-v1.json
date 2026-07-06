@@ -1,0 +1,307 @@
+{
+  "manifest": {
+    "timestamp": "2026-07-05T18:12:51",
+    "git_rev": "62b3339",
+    "dataset_sha256": "12f973feb8ea",
+    "n_cases": 1,
+    "trials": 1,
+    "extractor_model": "gpt-5.2",
+    "prompt_version": "v1",
+    "prompt_sha256": "6e8c7ec86ee1",
+    "judge": "deepseek:deepseek-chat",
+    "extraction_temperature": 0.1,
+    "judge_temperature": 0.0
+  },
+  "aggregate": {
+    "cases": {
+      "dream-boundary": {
+        "trials": 1,
+        "mean_f1": 0.689,
+        "std_f1": 0.0,
+        "mean_hallucinations": 4,
+        "schema_violations": 0,
+        "atomicity_violations": 0,
+        "edge_recall": null
+      }
+    },
+    "overall": {
+      "mean_f1": 0.689,
+      "std_f1": 0.0,
+      "total_hallucinations": 4,
+      "hallucinations_per_trial": 4.0,
+      "total_schema_violations": 0,
+      "total_atomicity_violations": 0
+    }
+  },
+  "trials": [
+    [
+      {
+        "id": "dream-boundary",
+        "extraction_ms": 9587,
+        "schema_violations": [],
+        "scores": {
+          "experiences": {
+            "gold": 2,
+            "extracted": 4,
+            "matched": 4,
+            "hallucinated": 0,
+            "hallucination_details": [],
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "emotions": {
+            "gold": 1,
+            "extracted": 4,
+            "matched": 1,
+            "hallucinated": 3,
+            "hallucination_details": [
+              {
+                "extracted_index": 0,
+                "classification": "hallucinated",
+                "reason": "Restlessness is not explicitly stated in the diary; the user did not express feeling restless."
+              },
+              {
+                "extracted_index": 1,
+                "classification": "hallucinated",
+                "reason": "Nostalgia is not explicitly stated; the dream is described but the emotion is not named."
+              },
+              {
+                "extracted_index": 3,
+                "classification": "hallucinated",
+                "reason": "Peace is not expressed; the diary describes a restless night, not a peaceful one."
+              }
+            ],
+            "precision": 0.25,
+            "recall": 1.0,
+            "f1": 0.4
+          },
+          "truths": {
+            "gold": 1,
+            "extracted": 2,
+            "matched": 1,
+            "hallucinated": 1,
+            "hallucination_details": [
+              {
+                "extracted_index": 1,
+                "classification": "hallucinated",
+                "reason": "The diary says 'I miss home more than I usually admit' but does not state a pattern of under-admitting; this is an inference not directly supported."
+              }
+            ],
+            "precision": 0.5,
+            "recall": 1.0,
+            "f1": 0.667
+          },
+          "atomicity_violations": [],
+          "edges": null
+        },
+        "summary": {
+          "mean_f1": 0.6890000000000001,
+          "hallucinations": 4,
+          "recall_misses": 0
+        },
+        "extracted": {
+          "experiences": [
+            {
+              "description": "I woke at 4am from a dream where I was back in Shanghai giving a talk in the old campus hall",
+              "type": "personal_growth",
+              "location": "Shanghai (in a dream)",
+              "significance": "The dream brought up feelings of home and nostalgia",
+              "people_involved": [],
+              "context": "Early-morning dream about returning to a familiar place and speaking publicly"
+            },
+            {
+              "description": "I couldn't fall back asleep after waking up at 4am",
+              "type": "health",
+              "location": null,
+              "significance": "My sleep was disrupted and I stayed awake",
+              "people_involved": [],
+              "context": "After waking from a vivid dream"
+            },
+            {
+              "description": "I made tea because I couldn't fall back asleep",
+              "type": "hobbies",
+              "location": null,
+              "significance": "I soothed myself and filled the time while awake",
+              "people_involved": [],
+              "context": "Early morning after waking from a dream"
+            },
+            {
+              "description": "I watched the street lights until sunrise",
+              "type": "personal_growth",
+              "location": null,
+              "significance": "I spent quiet time alone through the transition into morning",
+              "people_involved": [],
+              "context": "Staying awake from 4am until sunrise"
+            }
+          ],
+          "emotions": [
+            {
+              "name": "restlessness",
+              "intensity": 0.6,
+              "valence": "negative",
+              "context": "I couldn't fall back asleep after waking at 4am"
+            },
+            {
+              "name": "nostalgia",
+              "intensity": 0.7,
+              "valence": "neutral",
+              "context": "Dreaming of being back in Shanghai on the old campus"
+            },
+            {
+              "name": "longing",
+              "intensity": 0.85,
+              "valence": "negative",
+              "context": "I miss home more than I usually admit"
+            },
+            {
+              "name": "peace",
+              "intensity": 0.45,
+              "valence": "positive",
+              "context": "Making tea and watching street lights until sunrise"
+            }
+          ],
+          "truths": [
+            {
+              "content": "I miss home more than I usually admit",
+              "type": "pattern",
+              "confidence": 0.95
+            },
+            {
+              "content": "I tend to under-admit how much I miss home",
+              "type": "pattern",
+              "confidence": 0.75
+            }
+          ],
+          "relationships": {
+            "experience_evoked_emotion": [
+              {
+                "experience_index": 0,
+                "emotion_index": 1,
+                "intensity": 0.7
+              },
+              {
+                "experience_index": 0,
+                "emotion_index": 2,
+                "intensity": 0.6
+              },
+              {
+                "experience_index": 1,
+                "emotion_index": 0,
+                "intensity": 0.6
+              },
+              {
+                "experience_index": 2,
+                "emotion_index": 3,
+                "intensity": 0.45
+              },
+              {
+                "experience_index": 3,
+                "emotion_index": 3,
+                "intensity": 0.45
+              }
+            ],
+            "truth_distilled_from_experience": [
+              {
+                "truth_index": 0,
+                "experience_indices": [
+                  0,
+                  3
+                ],
+                "contribution_weights": [
+                  0.6,
+                  0.4
+                ],
+                "synthesis_date": "2026-07-05"
+              },
+              {
+                "truth_index": 1,
+                "experience_indices": [
+                  0,
+                  3
+                ],
+                "contribution_weights": [
+                  0.5,
+                  0.5
+                ],
+                "synthesis_date": "2026-07-05"
+              }
+            ]
+          },
+          "diary_metadata": {
+            "diary_id": "eval-dream-boundary",
+            "diary_date": "2026-07-05",
+            "content_preview": "Woke at 4am from a dream where I was back in Shanghai giving a talk in the old campus hall. Couldn't fall back asleep, so I made tea and watched the street lights until sunrise. I miss home more than "
+          }
+        },
+        "verdict": {
+          "matches": {
+            "experiences": [
+              {
+                "gold_index": 0,
+                "extracted_index": 0
+              },
+              {
+                "gold_index": 1,
+                "extracted_index": 1
+              },
+              {
+                "gold_index": 1,
+                "extracted_index": 2
+              },
+              {
+                "gold_index": 1,
+                "extracted_index": 3
+              }
+            ],
+            "emotions": [
+              {
+                "gold_index": 0,
+                "extracted_index": 2
+              }
+            ],
+            "truths": [
+              {
+                "gold_index": 0,
+                "extracted_index": 0
+              }
+            ]
+          },
+          "unmatched_extracted": {
+            "experiences": [],
+            "emotions": [
+              {
+                "extracted_index": 0,
+                "classification": "hallucinated",
+                "reason": "Restlessness is not explicitly stated in the diary; the user did not express feeling restless."
+              },
+              {
+                "extracted_index": 1,
+                "classification": "hallucinated",
+                "reason": "Nostalgia is not explicitly stated; the dream is described but the emotion is not named."
+              },
+              {
+                "extracted_index": 3,
+                "classification": "hallucinated",
+                "reason": "Peace is not expressed; the diary describes a restless night, not a peaceful one."
+              }
+            ],
+            "truths": [
+              {
+                "extracted_index": 1,
+                "classification": "hallucinated",
+                "reason": "The diary says 'I miss home more than I usually admit' but does not state a pattern of under-admitting; this is an inference not directly supported."
+              }
+            ]
+          },
+          "missed_gold": {
+            "experiences": [],
+            "emotions": [],
+            "truths": []
+          },
+          "atomicity_violations": []
+        }
+      }
+    ]
+  ]
+}
