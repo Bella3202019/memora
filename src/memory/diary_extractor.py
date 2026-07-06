@@ -12,7 +12,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
-from src.prompts.diary_extraction_prompt import DIARY_EXTRACTION_PROMPT
+from src.prompts.diary_extraction_prompt import PROMPT_VERSIONS
 
 load_dotenv()
 
@@ -81,16 +81,20 @@ def load_diary(file_path: str) -> Dict[str, Any]:
 async def extract_from_diary(
     diary_id: str,
     diary_date: str,
-    content: str
+    content: str,
+    prompt_version: str = "v2",
+    model: str = "gpt-5.2"
 ) -> Dict[str, Any]:
     """
     Extract memories from a diary entry using LLM.
-    
+
     Args:
         diary_id: Unique diary identifier (UUID from filename)
         diary_date: Date of diary entry (YYYY-MM-DD)
         content: The diary entry content
-        
+        prompt_version: Extraction prompt version key in PROMPT_VERSIONS
+        model: OpenAI model to use for extraction
+
     Returns:
         Extracted data with experiences, emotions, truths, relationships
     """
@@ -100,11 +104,11 @@ async def extract_from_diary(
 {content}"""
 
         response = await openai_client.chat.completions.create(
-            model="gpt-5.2",
+            model=model,
             messages=[
                 {
                     "role": "system",
-                    "content": DIARY_EXTRACTION_PROMPT
+                    "content": PROMPT_VERSIONS[prompt_version]
                 },
                 {
                     "role": "user",

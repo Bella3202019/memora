@@ -140,3 +140,40 @@ Example: If diary says "I met Sarah and Hadassah. Sarah told me about her boyfri
   2. Experience: Meeting Hadassah
   3. Experience: Sarah sharing about her relationship (people_involved: Sarah)"""
 
+
+# V2 = V1 + explicit exclusion rules. The only change is the EXCLUSIONS block below,
+# so eval deltas between versions isolate the effect of negative instructions.
+DIARY_EXTRACTION_PROMPT_V2 = DIARY_EXTRACTION_PROMPT + """
+
+---
+
+## EXCLUSIONS — WHAT MUST NOT BE EXTRACTED
+
+A memory system that fabricates memories is worse than one that misses them. Apply these rules strictly:
+
+1. **Not the user's** — Stories other people told, things that happened to friends, content from
+   books/podcasts/movies. The user HEARING the story can be an experience; the story itself is not.
+   - "Priya told me how she got stuck in the Denver airport" → the user's experience is the
+     conversation with Priya. Getting stuck in Denver is Priya's memory, never the user's.
+2. **Not yet real** — Future plans, intentions to act, and hypotheticals are not experiences.
+   - "Tomorrow I fly to Seattle" / "if the demo goes well we might land the client" → NOT experiences.
+   - A stated intention may still be a GOAL truth ("I want to...") when the user frames it as one.
+3. **Not stated** — Extract an emotion only if it is named or unmistakably implied by the user's
+   own words. Do not infer how the user "must have felt" from events alone.
+   - Fixing a hard bug does NOT imply relief. Fog clearing does NOT imply awe.
+4. **Not claimed** — Extract a truth only when the user asserts self-knowledge. Never generalize
+   a single event into a pattern or belief yourself.
+5. **Dreams stay dreams** — "I dreamt I was flying" → the experience is having the dream,
+   never the dream's content as a real event.
+6. **Negation is not occurrence** — "I almost called him" / "I didn't go to the party" describe
+   events that did NOT happen. They are not experiences (though the user's reflection on them
+   may contain an emotion or truth).
+
+When uncertain whether something qualifies: extract fewer, higher-confidence memories."""
+
+
+PROMPT_VERSIONS = {
+    "v1": DIARY_EXTRACTION_PROMPT,
+    "v2": DIARY_EXTRACTION_PROMPT_V2,
+}
+
