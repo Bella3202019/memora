@@ -27,6 +27,8 @@ Memora models memory the way human memory actually stratifies — and keeps the 
 
 The relationships are the point: an **Experience `EVOKED` an Emotion**, and a **Truth is `DISTILLED_FROM` Experiences**. Emotion isn't decoration — memory research finds that emotional salience is a primary driver of what we encode and later recall, so Memora treats it as a first-class edge that weights and links the graph, not a sentiment score. Truths are never invented from a single event; they're derived knowledge, synthesized from the episodic layer beneath them.
 
+This mapping — episodic memory → Experience, semantic self-knowledge → Truth, emotional salience → Emotion — is the intellectual core of the project. For the full reasoning and its grounding in memory science (Tulving's episodic/semantic distinction, emotional modulation of consolidation), see **[docs/MEMORY_MODEL.md](docs/MEMORY_MODEL.md)**.
+
 ## Quick Start
 
 ```bash
