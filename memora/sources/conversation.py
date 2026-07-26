@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator, List, Tuple
 
-from src.sources.base import Source, SourceDocument
+from memora.sources.base import Source, SourceDocument
 
 logger = logging.getLogger(__name__)
 

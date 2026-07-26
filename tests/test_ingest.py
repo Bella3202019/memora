@@ -1,9 +1,9 @@
 import asyncio
 import json
 
-from src.config import Config, SourceConfig, LLMConfig, EmbeddingsConfig, Neo4jConfig
-from src.ingest import IngestState, ingest
-from src.llm.base import LLMBackend
+from memora.config import Config, SourceConfig, LLMConfig, EmbeddingsConfig, Neo4jConfig
+from memora.ingest import IngestState, ingest
+from memora.llm.base import LLMBackend
 
 
 class FakeBackend(LLMBackend):

@@ -1,6 +1,6 @@
-from src.config import SourceConfig
-from src.sources import build_source
-from src.sources.markdown import MarkdownSource
+from memora.config import SourceConfig
+from memora.sources import build_source
+from memora.sources.markdown import MarkdownSource
 
 
 def make(tmp_path, include=None):

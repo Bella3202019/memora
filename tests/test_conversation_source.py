@@ -1,8 +1,8 @@
 import json
 
-from src.config import SourceConfig
-from src.sources import build_source
-from src.sources.conversation import ConversationSource
+from memora.config import SourceConfig
+from memora.sources import build_source
+from memora.sources.conversation import ConversationSource
 
 CHATGPT_EXPORT = [{
     "title": "Trip planning",

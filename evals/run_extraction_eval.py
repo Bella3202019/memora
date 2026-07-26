@@ -40,10 +40,10 @@ from pathlib import Path
 
 from openai import AsyncOpenAI
 
-from src.config import LLMConfig
-from src.llm import get_backend
-from src.memory.diary_extractor import extract_from_diary
-from src.prompts.diary_extraction_prompt import PROMPT_VERSIONS
+from memora.config import LLMConfig
+from memora.llm import get_backend
+from memora.memory.diary_extractor import extract_from_diary
+from memora.prompts.diary_extraction_prompt import PROMPT_VERSIONS
 
 logger = logging.getLogger(__name__)
 

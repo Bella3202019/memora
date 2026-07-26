@@ -23,7 +23,7 @@ import logging
 import sys
 from typing import Any
 
-from src.memory.retriever import (
+from memora.memory.retriever import (
     get_emotional_patterns,
     get_experiences_by_emotion,
     search_experiences,

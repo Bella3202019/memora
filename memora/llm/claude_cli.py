@@ -14,7 +14,7 @@ import os
 import shutil
 from typing import Optional
 
-from src.llm.base import LLMBackend, extract_json_block
+from memora.llm.base import LLMBackend, extract_json_block
 
 logger = logging.getLogger(__name__)
 

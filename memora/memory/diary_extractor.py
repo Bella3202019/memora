@@ -9,10 +9,10 @@ from typing import Dict, Any, Optional
 from pathlib import Path
 from dotenv import load_dotenv
 
-from src.prompts.diary_extraction_prompt import PROMPT_VERSIONS
-from src.llm.base import LLMBackend
-from src.llm.openai_compat import OpenAICompatBackend
-from src.sources.base import SourceDocument
+from memora.prompts.diary_extraction_prompt import PROMPT_VERSIONS
+from memora.llm.base import LLMBackend
+from memora.llm.openai_compat import OpenAICompatBackend
+from memora.sources.base import SourceDocument
 
 load_dotenv()
 

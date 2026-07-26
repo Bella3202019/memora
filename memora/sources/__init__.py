@@ -1,7 +1,7 @@
-from src.config import SourceConfig
-from src.sources.base import Source, SourceDocument
-from src.sources.conversation import ConversationSource
-from src.sources.markdown import MarkdownSource
+from memora.config import SourceConfig
+from memora.sources.base import Source, SourceDocument
+from memora.sources.conversation import ConversationSource
+from memora.sources.markdown import MarkdownSource
 
 _REGISTRY = {
     "markdown": MarkdownSource,

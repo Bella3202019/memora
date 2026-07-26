@@ -8,11 +8,11 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from src.config import Config
-from src.llm import get_backend
-from src.llm.base import LLMBackend
-from src.memory.diary_extractor import extract_from_document
-from src.sources import build_source
+from memora.config import Config
+from memora.llm import get_backend
+from memora.llm.base import LLMBackend
+from memora.memory.diary_extractor import extract_from_document
+from memora.sources import build_source
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ async def ingest(
                 )
                 if not dry_run:
                     # Local import: Neo4j connection only needed when storing
-                    from src.memory.storage import MemoryStorage
+                    from memora.memory.storage import MemoryStorage
                     await MemoryStorage().store_extracted_data(
                         user_id=config.user_id,
                         extracted_data={

@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterator, Optional, Tuple
 
-from src.sources.base import Source, SourceDocument
+from memora.sources.base import Source, SourceDocument
 
 DIARY_FILENAME = re.compile(
     r"\[[A-F0-9-]+\]-\[(\d{4})-(\d{2})-(\d{2})-(\d{2})-(\d{2})-(\d{2})\]",

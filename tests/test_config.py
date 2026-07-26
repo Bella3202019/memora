@@ -2,7 +2,7 @@ import textwrap
 import pytest
 from pathlib import Path
 
-from src.config import load_config, ConfigError, Config
+from memora.config import load_config, ConfigError, Config
 
 
 VALID_YAML = textwrap.dedent("""\

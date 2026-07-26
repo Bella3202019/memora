@@ -1,9 +1,9 @@
 import asyncio
 
-from src.llm.base import LLMBackend
-from src.memory.diary_extractor import build_prompt, extract_from_document
-from src.prompts.diary_extraction_prompt import PROMPT_VERSIONS
-from src.sources.base import SourceDocument
+from memora.llm.base import LLMBackend
+from memora.memory.diary_extractor import build_prompt, extract_from_document
+from memora.prompts.diary_extraction_prompt import PROMPT_VERSIONS
+from memora.sources.base import SourceDocument
 
 
 class FakeBackend(LLMBackend):

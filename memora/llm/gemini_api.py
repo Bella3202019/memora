@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 
-from src.llm.base import LLMBackend, extract_json_block
+from memora.llm.base import LLMBackend, extract_json_block
 
 
 class GeminiBackend(LLMBackend):

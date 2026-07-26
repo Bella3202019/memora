@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.llm.base import LLMBackend, extract_json_block
+from memora.llm.base import LLMBackend, extract_json_block
 
 
 class AnthropicBackend(LLMBackend):

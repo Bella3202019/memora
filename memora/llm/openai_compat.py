@@ -7,7 +7,7 @@ from typing import Optional
 
 from openai import AsyncOpenAI
 
-from src.llm.base import LLMBackend, extract_json_block
+from memora.llm.base import LLMBackend, extract_json_block
 
 
 class OpenAICompatBackend(LLMBackend):

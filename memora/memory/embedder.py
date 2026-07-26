@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
-from src.memory.client import get_neo4j_client
+from memora.memory.client import get_neo4j_client
 
 load_dotenv()
 

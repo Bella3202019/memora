@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "memora"
+version = "0.1.0"
+description = "Personal memory graph: extract experiences, emotions, and truths from your files into Neo4j"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "python-dotenv",
+    "neo4j",
+    "openai",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic"]
+gemini = ["google-genai"]
+dev = ["pytest"]
+
+[project.scripts]
+memora = "memora.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["memora*"]
+
+[tool.setuptools.package-data]
+"memora.resources" = ["docker-compose.yml"]
