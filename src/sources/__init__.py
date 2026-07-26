@@ -1,9 +1,11 @@
 from src.config import SourceConfig
 from src.sources.base import Source, SourceDocument
+from src.sources.conversation import ConversationSource
 from src.sources.markdown import MarkdownSource
 
 _REGISTRY = {
     "markdown": MarkdownSource,
+    "conversation": ConversationSource,
 }
 
 
