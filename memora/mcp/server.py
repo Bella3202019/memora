@@ -3,15 +3,14 @@ MCP (Model Context Protocol) server for the memory graph.
 Exposes retrieval tools over stdio JSON-RPC — no extra dependencies.
 
 Usage:
-    source .venv/bin/activate && python -m entrypoints.mcp_server
+    memora mcp
 
 Configure in your MCP client (Claude Desktop, Cursor, etc.):
     {
       "mcpServers": {
         "memora": {
-          "command": "python",
-          "args": ["-m", "entrypoints.mcp_server"],
-          "cwd": "/path/to/memory"
+          "command": "memora",
+          "args": ["mcp"]
         }
       }
     }
