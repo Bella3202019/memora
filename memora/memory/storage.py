@@ -1,8 +1,8 @@
 
 import logging
 from typing import Dict, List, Any, Optional
-from src.memory.client import get_neo4j_client
-from src.memory.embedder import embed
+from memora.memory.client import get_neo4j_client
+from memora.memory.embedder import embed
 
 logger = logging.getLogger(__name__)
 

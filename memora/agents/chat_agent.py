@@ -6,7 +6,7 @@ from pathlib import Path
 
 from openai import AsyncOpenAI
 
-from src.memory.retriever import (
+from memora.memory.retriever import (
     get_emotional_patterns,
     get_experiences_by_emotion,
     search_experiences,
@@ -220,3 +220,42 @@ async def chat(messages: list[dict]) -> str:
                 "tool_call_id": tc.id,
                 "content": result,
             })
+
+
+def _load_chat_history() -> list[dict]:
+    """Load today's chat history, or start a fresh session."""
+    path = _get_chat_file_path()
+    if path.exists():
+        return json.loads(path.read_text())
+    return [{"role": "system", "content": SYSTEM_PROMPT}]
+
+
+async def run_chat_loop() -> None:
+    """Interactive REPL over the memory graph (used by `memora chat`)."""
+    print("Hey, feel free to chat with another echo of yourself.")
+    print("Type 'quit' or press Ctrl+C to exit.\n")
+
+    messages = _load_chat_history()
+    prior = len([m for m in messages if m["role"] == "user"])
+    if prior:
+        print(f"(Resuming today's session — {prior} previous messages)\n")
+
+    while True:
+        try:
+            user_input = input("You: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nGoodbye.")
+            break
+
+        if user_input.lower() in ("quit", "exit", "q"):
+            print("Goodbye.")
+            break
+        if not user_input:
+            continue
+
+        messages.append({"role": "user", "content": user_input})
+        try:
+            response = await chat(messages)
+            print(f"\nAssistant: {response}\n")
+        except Exception as e:
+            print(f"\n[Error] {e}\n")

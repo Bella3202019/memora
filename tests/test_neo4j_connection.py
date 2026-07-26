@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import asyncio
 import logging
 from dotenv import load_dotenv
-from src.memory.client import get_neo4j_client, Neo4jClient
+from memora.memory.client import get_neo4j_client, Neo4jClient
 
 logging.basicConfig(
     level=logging.INFO,
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Reset singleton to ensure fresh credentials are loaded
-import src.memory.client as client_module
+import memora.memory.client as client_module
 client_module._neo4j_client = None
 
 

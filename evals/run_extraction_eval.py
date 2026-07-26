@@ -40,8 +40,10 @@ from pathlib import Path
 
 from openai import AsyncOpenAI
 
-from src.memory.diary_extractor import extract_from_diary
-from src.prompts.diary_extraction_prompt import PROMPT_VERSIONS
+from memora.config import LLMConfig
+from memora.llm import get_backend
+from memora.memory.diary_extractor import extract_from_diary
+from memora.prompts.diary_extraction_prompt import PROMPT_VERSIONS
 
 logger = logging.getLogger(__name__)
 
@@ -309,7 +311,7 @@ def case_summary(scores: dict) -> dict:
 # Runner
 # ---------------------------------------------------------------------------
 
-async def run_case(case: dict, prompt_version: str, model: str) -> dict:
+async def run_case(case: dict, prompt_version: str, model: str, backend=None) -> dict:
     start = time.monotonic()
     extracted = await extract_from_diary(
         diary_id=f"eval-{case['id']}",
@@ -317,6 +319,7 @@ async def run_case(case: dict, prompt_version: str, model: str) -> dict:
         content=case["diary"],
         prompt_version=prompt_version,
         model=model,
+        backend=backend,
     )
     extraction_ms = int((time.monotonic() - start) * 1000)
     schema_violations = check_schema(extracted)
@@ -333,12 +336,12 @@ async def run_case(case: dict, prompt_version: str, model: str) -> dict:
     }
 
 
-async def run_trial(cases, prompt_version, model):
+async def run_trial(cases, prompt_version, model, backend=None):
     sem = asyncio.Semaphore(4)
 
     async def bounded(case):
         async with sem:
-            return await run_case(case, prompt_version, model)
+            return await run_case(case, prompt_version, model, backend)
 
     return list(await asyncio.gather(*(bounded(c) for c in cases)))
 
@@ -405,6 +408,7 @@ def build_manifest(args, dataset_raw: str, n_cases: int) -> dict:
         "n_cases": n_cases,
         "trials": args.trials,
         "extractor_model": args.model,
+        "backend": args.backend,
         "prompt_version": args.prompt_version,
         "prompt_sha256": hashlib.sha256(prompt_text.encode()).hexdigest()[:12],
         "judge": f"deepseek:{JUDGE_MODEL}",
@@ -451,6 +455,12 @@ async def main() -> None:
     parser.add_argument("--trials", type=int, default=1)
     parser.add_argument("--prompt-version", default="v2", choices=sorted(PROMPT_VERSIONS))
     parser.add_argument("--model", default="gpt-5.2", help="Extractor model")
+    parser.add_argument(
+        "--backend",
+        choices=["openai-compatible", "claude-subscription", "anthropic", "gemini"],
+        default="openai-compatible",
+        help="LLM backend for the extractor (default preserves current behavior)",
+    )
     args = parser.parse_args()
 
     dataset_raw = (EVALS_DIR / "dataset.json").read_text()
@@ -461,13 +471,14 @@ async def main() -> None:
             raise SystemExit(f"No case with id {args.case!r}")
 
     get_judge_client()  # fail fast if DEEPSEEK_API_KEY is missing
+    backend = get_backend(LLMConfig(backend=args.backend, model=args.model))
     manifest = build_manifest(args, dataset_raw, len(cases))
     logger.info("Manifest: %s", json.dumps(manifest))
 
     trials = []
     for t in range(args.trials):
         logger.info("Trial %d/%d", t + 1, args.trials)
-        trials.append(await run_trial(cases, args.prompt_version, args.model))
+        trials.append(await run_trial(cases, args.prompt_version, args.model, backend))
 
     agg = aggregate(trials)
     report = render_report(manifest, agg)

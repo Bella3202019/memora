@@ -4,16 +4,28 @@ import os
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
-from src.memory.client import get_neo4j_client
+from memora.config import EmbeddingsConfig, load_config
+from memora.memory.client import get_neo4j_client
 
 load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-EMBEDDING_MODEL = "text-embedding-3-small"
+
+def _embeddings_config() -> EmbeddingsConfig:
+    try:
+        return load_config().embeddings
+    except Exception:
+        return EmbeddingsConfig()  # config optional: default OpenAI
+
+
+_cfg = _embeddings_config()
+EMBEDDING_MODEL = _cfg.model
+# Non-default models: recreate vector indexes with the model's dimension.
 EMBEDDING_DIMENSIONS = 1536
 
-_openai = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+_openai = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY") or "unused",
+                      base_url=_cfg.base_url)
 
 
 async def embed(text: str) -> list[float]:
