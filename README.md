@@ -1,6 +1,6 @@
-# Memora - Personal Memory Graph
+# Memora — Personal Memory Graph
 
-A system for extracting and storing personal memories from diary entries into a Neo4j graph database. Extracts episodic memory (experiences) and personal semantic memory (truths), along with emotions, using LLM-based analysis.
+Point Memora at your files — diaries, notes, chat exports, call transcripts — and it extracts the memories worth keeping into a queryable Neo4j graph: the **experiences** you lived, the **emotions** you felt, and the **truths** you've learned about yourself. Then talk to it, or wire it into Claude / Cursor as an MCP tool.
 
 ## Evaluated, not vibes
 
@@ -15,120 +15,97 @@ hallucinations −78%** (23 → 5 per trial). The eval's regression guards also 
 cost: v2 mildly over-suppresses own-past recollections — the next iteration target.
 See [`evals/results/compare-v1-vs-v2.md`](evals/results/compare-v1-vs-v2.md).
 
+## The three memory types
 
-## Overview
+Memora models memory the way human memory actually stratifies — and keeps the layers as distinct node types so you can query each on its own terms.
 
-This project provides tools to:
-- **Extract memories** from personal diary entries
-- **Store memories** in a Neo4j graph database with relationships
-- **Query memories** to understand patterns, experiences, and personal insights
+| Type | Cognitive analogue | What it is | Example |
+|------|--------------------|------------|---------|
+| **Experience** | Episodic memory | A specific event you lived through | "I finished my first marathon in Berlin" |
+| **Emotion** | Affective tag | What you felt, with intensity and valence | "pride" (0.9, positive) |
+| **Truth** | Semantic self-knowledge | A belief/pattern/preference/goal distilled from experiences | "I keep going when it stops being fun" |
 
-### Memory Types
+The relationships are the point: an **Experience `EVOKED` an Emotion**, and a **Truth is `DISTILLED_FROM` Experiences**. Emotion isn't decoration — memory research finds that emotional salience is a primary driver of what we encode and later recall, so Memora treats it as a first-class edge that weights and links the graph, not a sentiment score. Truths are never invented from a single event; they're derived knowledge, synthesized from the episodic layer beneath them.
 
-| Type | Description | Example |
-|------|-------------|---------|
-| **Experience** (Episodic Memory) | Specific events, moments, occurrences from life | "I studied in Madrid for 5 months" |
-| **Emotion** | Feelings expressed or implied | "freedom", "gratitude", "anxiety" |
-| **Truth** (Personal Semantic Memory) | Abstracted self-knowledge, patterns, beliefs distilled from experiences | "I feel alive when talking deeply with someone" |
-
-## Project Structure
-
-```
-memory/
-├── src/
-│   ├── memory/
-│   │   ├── diary_extractor.py     # Extract from diary entries
-│   │   ├── storage.py             # Neo4j storage operations
-│   │   └── client.py              # Neo4j client wrapper
-│   ├── prompts/
-│   │   └── diary_extraction_prompt.py  # Prompt for diaries
-│   └── agents/                    # Chat agent for querying memories
-│
-├── entrypoints/
-│   ├── extract_diary_memories.py  # Extract memories from diary entries
-│   ├── chat.py                    # Interactive chat interface
-│   ├── mcp_server.py              # MCP server for AI agent integration
-│   └── embed_existing.py          # Backfill embeddings for existing nodes
-│
-├── tests/
-│                
-│
-├── data/
-│   ├── output/                    # Extracted JSON outputs (gitignored)
-│   ├── chat/                      # Chat history files (gitignored)
-│   └── processed_diaries.txt      # Processed diary log (gitignored)
-│
-└── docs/
-    └── MEMORY_SCHEMA.md           # Neo4j schema documentation
-```
-
-## Setup
-
-### 1. Clone and Install
+## Quick Start
 
 ```bash
-git clone <repo-url>
-cd memory
-
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
+pip install -e .
+docker compose up -d          # local Neo4j (or use Neo4j Aura free tier)
+memora init                   # onboarding wizard: sources, backend, database
+memora ingest --dry-run       # preview what would be extracted
+memora ingest                 # extract and store memories
+memora chat                   # talk to your memory graph
+memora mcp                    # expose it to Claude Desktop / Cursor via MCP
 ```
 
-### 2. Configure Environment
+## Configuring sources
 
-Create a `.env` file with the following:
+Memora ingests files from anywhere on your machine. Two source types:
 
-```env
-# OpenAI (required for extraction)
-OPENAI_API_KEY=your_openai_api_key
+- **markdown** — diaries, notes, Obsidian vaults (`.md`/`.txt`)
+- **conversation** — ChatGPT/Claude export JSON, speaker-labeled call transcripts
 
-# Neo4j (required for storage)
-NEO4J_URI=neo4j+s://your-instance.databases.neo4j.io
-NEO4J_USERNAME=neo4j
-NEO4J_PASSWORD=your_password
-NEO4J_DATABASE=neo4j
+`memora init` writes `~/.memora/config.yaml`; edit it by hand any time:
+
+```yaml
+user_id: me
+sources:
+  - name: journal
+    type: markdown
+    paths: [~/Documents/journal]
+    include: ["**/*.md"]
+  - name: chatgpt
+    type: conversation
+    paths: [~/Downloads/chatgpt-export]
+llm:
+  backend: claude-subscription   # default: your Claude plan, no API bill
+embeddings:
+  model: text-embedding-3-small  # needs OPENAI_API_KEY
+neo4j:
+  uri: bolt://localhost:7687
+  user: neo4j                    # password from NEO4J_PASSWORD
 ```
 
-### 3. Test Neo4j Connection
+Secrets never live in the config file — only paths and non-secret settings, so it's
+safe to share. Timestamps are resolved per document: native timestamps (chat exports) →
+filename patterns → markdown front-matter `date:` → file modified time. Never inferred
+from content by the LLM.
+
+## LLM backends
+
+| backend | auth | notes |
+|---|---|---|
+| `claude-subscription` (default) | Claude Code login | shells out to `claude -p`; zero marginal cost on your plan. Do NOT set `ANTHROPIC_API_KEY` or the CLI bills the API instead. |
+| `openai-compatible` | `OPENAI_API_KEY` + `base_url` | OpenAI, DeepSeek, Ollama, OpenRouter, Groq |
+| `anthropic` | `ANTHROPIC_API_KEY` | `pip install anthropic` |
+| `gemini` | `GEMINI_API_KEY` | `pip install google-genai` |
+
+Extraction quality (F1 0.926, above) is certified for `gpt-5.2` only. Other models
+vary — measure any backend yourself:
 
 ```bash
-python -m tests.test_neo4j_connection
+python -m evals.run_extraction_eval --backend claude-subscription --trials 3
 ```
 
-## Usage
+## Fully local setup
 
-### Extract Memories from Diary Entries
+No API keys, nothing leaves your machine: Docker Neo4j + [Ollama](https://ollama.com).
 
-Diary files are markdown files with filenames in format: `[UUID]-[YYYY-MM-DD-HH-MM-SS].md`
-
-**Dry run single diary:**
-```bash
-python -m entrypoints.extract_diary_memories "/path/to/diary.md" "user_123" --dry-run
+```yaml
+llm:
+  backend: openai-compatible
+  base_url: http://localhost:11434/v1
+  model: llama3.1
+embeddings:
+  base_url: http://localhost:11434/v1
+  model: nomic-embed-text      # note: 768 dims — recreate vector indexes to match
 ```
 
-**Extract and store single diary:**
-```bash
-python -m entrypoints.extract_diary_memories "/path/to/diary.md" "user_123"
-```
+## Query via MCP
 
-**Batch process all diaries:**
-```bash
-python -m entrypoints.extract_diary_memories --dir "/path/to/diaries/" "user_123"
-```
-
-### Query Memories via MCP Server
-
-The MCP (Model Context Protocol) server exposes memory retrieval as tools for AI agents (Claude Desktop, Cursor, VS Code, etc.). Zero extra dependencies — works over stdio JSON-RPC.
-
-```bash
-source .venv/bin/activate && python -m entrypoints.mcp_server
-```
-
-**Available tools:**
+The MCP (Model Context Protocol) server exposes memory retrieval as tools for AI agents
+(Claude Desktop, Cursor, VS Code, etc.). Zero extra dependencies — stdio JSON-RPC.
 
 | Tool | Description |
 |------|-------------|
@@ -137,94 +114,74 @@ source .venv/bin/activate && python -m entrypoints.mcp_server
 | `get_experiences_by_emotion` | All experiences tied to a specific emotion |
 | `get_emotional_patterns` | Emotion frequency, intensity, and valence stats |
 
-**Configure in your MCP client:**
+Configure in your MCP client:
 
 ```json
 {
   "mcpServers": {
     "memora": {
-      "command": "python",
-      "args": ["-m", "entrypoints.mcp_server"],
-      "cwd": "/path/to/memory"
+      "command": "memora",
+      "args": ["mcp"]
     }
   }
 }
 ```
 
-### Query Memories via Chat Interface
+## Project structure
 
-Interactive chat interface for querying your memory knowledge graph:
-
-```bash
-python -m entrypoints.chat
+```
+memora/
+├── cli.py               # memora init / ingest / chat / mcp
+├── config.py            # ~/.memora/config.yaml loader
+├── init_wizard.py       # onboarding wizard
+├── ingest.py            # discover → extract → store pipeline
+├── sources/             # markdown + conversation adapters (pluggable)
+├── llm/                 # backend layer (claude-cli, openai-compat, anthropic, gemini)
+├── memory/              # Neo4j client, storage, embedder, retriever, extractor
+├── prompts/             # shared core extraction prompt
+├── agents/              # chat agent
+├── mcp/server.py        # MCP stdio server
+└── resources/           # bundled docker-compose.yml
+evals/                   # extraction eval suite (see evals/README.md)
+docs/MEMORY_SCHEMA.md    # full Neo4j schema
 ```
 
-The chat interface allows you to:
-- Search experiences by semantic similarity
-- Find truths and self-knowledge patterns
-- Explore emotional patterns
-- Discover connections between experiences and emotions
-
-### Backfill Embeddings
-
-If you have existing Experience or Truth nodes without embeddings, you can backfill them:
-
-```bash
-python -m entrypoints.embed_existing
-```
-
-## Neo4j Schema
+## Neo4j schema
 
 ### Nodes
-
-- **User** - `{userId}`
-- **Experience** - `{description, type, date, location, significance}`
-- **Emotion** - `{name, valence}`
-- **Truth** - `{content, type, confidence, first_synthesized}`
+- **User** — `{userId}`
+- **Experience** — `{description, type, date, location, significance}`
+- **Emotion** — `{name, valence}`
+- **Truth** — `{content, type, confidence, first_synthesized}`
 
 ### Relationships
+- `(User)-[:HAD]->(Experience)`
+- `(User)-[:FELT]->(Emotion)`
+- `(User)-[:GOT]->(Truth)`
+- `(Experience)-[:EVOKED]->(Emotion)`
+- `(Truth)-[:DISTILLED_FROM]->(Experience)`
 
-- `(User)-[:HAD]->(Experience)` - User had an experience
-- `(User)-[:FELT]->(Emotion)` - User felt an emotion
-- `(User)-[:GOT]->(Truth)` - User discovered a truth
-- `(Experience)-[:EVOKED]->(Emotion)` - Experience triggered emotion
-- `(Truth)-[:DISTILLED_FROM]->(Experience)` - Truth derived from experiences
-
-### Query Examples
+### Query examples
 
 ```cypher
 -- Get all experiences for a user
-MATCH (u:User {userId: "user_123"})-[:HAD]->(exp:Experience)
+MATCH (u:User {userId: "me"})-[:HAD]->(exp:Experience)
 RETURN exp.description, exp.type, exp.date, exp.location
 
--- Get emotions with intensity
-MATCH (u:User {userId: "user_123"})-[f:FELT]->(em:Emotion)
+-- Emotions with intensity
+MATCH (u:User {userId: "me"})-[f:FELT]->(em:Emotion)
 RETURN em.name, f.intensity, f.context, em.valence
 
--- Get truths/self-knowledge
-MATCH (u:User {userId: "user_123"})-[:GOT]->(t:Truth)
+-- Truths / self-knowledge
+MATCH (u:User {userId: "me"})-[:GOT]->(t:Truth)
 RETURN t.content, t.type, t.confidence
-
--- Full graph for a user
-MATCH path = (u:User {userId: "user_123"})-[*1..2]-(n)
-RETURN path LIMIT 200
 ```
 
-## Experience Types
+## Reference
 
-| Type | Description |
-|------|-------------|
-| `friendship` | Experiences with friends |
-| `family` | Experiences with family members |
-| `romantic` | Experiences with romantic partners |
-| `career` | Work, professional achievements |
-| `education` | School, college, courses |
-| `health` | Physical/mental health |
-| `hobbies` | Personal interests, activities |
-| `travel` | Trips, relocations |
-| `personal_growth` | Learning, self-discovery |
+**Experience types:** `friendship`, `family`, `romantic`, `career`, `education`, `health`, `hobbies`, `travel`, `personal_growth`
 
-## Truth Types
+**Truth types:**
 
 | Type | Description | Example |
 |------|-------------|---------|
@@ -235,27 +192,13 @@ RETURN path LIMIT 200
 
 ## Contributing
 
-### Adding New Data Sources
+**Add a new source type:** write one adapter in `memora/sources/` implementing the
+`Source` interface (`discover()` yielding `SourceDocument`s, plus a `prompt_preamble`),
+and register it in `memora/sources/__init__.py`. The extraction, storage, and retrieval
+layers are reused as-is.
 
-1. Create a new extractor in `src/memory/` (e.g., `journal_extractor.py`)
-2. Create a prompt in `src/prompts/` (e.g., `journal_extraction_prompt.py`)
-3. Create an entrypoint in `entrypoints/` (e.g., `process_journal.py`)
-4. The storage layer (`storage.py`) can be reused as-is
+**Modify the extraction prompt:** `memora/prompts/diary_extraction_prompt.py`. The
+`PROMPT_VERSIONS` dict is what the eval suite grades — add a version, then run
+`python -m evals.run_extraction_eval` to measure the change before shipping it.
 
-### Modifying Extraction Prompts
-
-Prompts are in `src/prompts/`. Key guidelines:
-- Use first-person "I/me/my" in extracted content
-- Extract only real life events, not conversation meta-events
-- Separate multiple items (don't combine experiences)
-- Include relationships between experiences, emotions, and truths
-
-### Running Tests
-
-```bash
-# Test Neo4j connection
-python -m tests.test_neo4j_connection
-
-```
-
-
+**Run tests:** `python -m pytest tests/`
