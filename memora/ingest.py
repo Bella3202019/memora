@@ -77,6 +77,10 @@ async def ingest(
                 extracted = await extract_from_document(
                     doc, preamble=source.prompt_preamble, backend=backend
                 )
+                if extracted.get("error"):
+                    # The extractor caught an error and returned an empty result;
+                    # surface it instead of counting an empty doc as processed.
+                    raise RuntimeError(extracted["error"])
                 if not dry_run:
                     # Local import: Neo4j connection only needed when storing
                     from memora.memory.storage import MemoryStorage

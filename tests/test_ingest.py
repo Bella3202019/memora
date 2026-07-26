@@ -12,6 +12,11 @@ class FakeBackend(LLMBackend):
                 "relationships": {}}
 
 
+class FailingBackend(LLMBackend):
+    async def complete_json(self, system, user):
+        raise RuntimeError("api key invalid")
+
+
 def make_config(tmp_path):
     return Config(
         user_id="t",
@@ -44,6 +49,17 @@ def test_dry_run_extracts_without_marking(tmp_path):
     summary2 = asyncio.run(ingest(cfg, dry_run=True, state_path=state_path,
                                   backend=FakeBackend()))
     assert summary2["processed"] == 1
+
+
+def test_extraction_failure_counts_as_error(tmp_path):
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "a.md").write_text("I hiked today with Sam.")
+    cfg = make_config(tmp_path)
+    summary = asyncio.run(ingest(cfg, dry_run=True, state_path=tmp_path / "s.json",
+                                 backend=FailingBackend()))
+    assert summary["processed"] == 0
+    assert summary["errors"] == 1
+    assert "api key invalid" in summary["details"][0]["error"]
 
 
 def test_unknown_source_name(tmp_path):
