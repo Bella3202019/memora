@@ -3,3 +3,7 @@ python-dotenv
 neo4j
 openai
 pyyaml
+
+# Optional LLM backends (base install works without these):
+#   pip install anthropic      -> llm.backend: anthropic
+#   pip install google-genai   -> llm.backend: gemini
