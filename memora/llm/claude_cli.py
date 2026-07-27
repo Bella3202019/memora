@@ -51,5 +51,23 @@ class ClaudeCLIBackend(LLMBackend):
         if proc.returncode != 0:
             raise RuntimeError(f"claude -p failed: {stderr.decode()[:500]}")
         envelope = json.loads(stdout.decode("utf-8"))
-        # `claude -p --output-format json` wraps the reply in {"result": "..."}
-        return extract_json_block(envelope["result"])
+        return extract_json_block(_reply_text(envelope))
+
+
+def _reply_text(envelope) -> str:
+    """Pull the assistant's reply text out of `claude -p --output-format json`.
+
+    The CLI emits a JSON array of stream events ending in a `{"type":"result",
+    "result": "..."}` event. Older/simple shapes use a bare {"result": ...}
+    dict or a plain string; handle all three.
+    """
+    if isinstance(envelope, str):
+        return envelope
+    if isinstance(envelope, dict):
+        return envelope.get("result", "")
+    if isinstance(envelope, list):
+        for item in reversed(envelope):
+            if isinstance(item, dict) and item.get("type") == "result":
+                return item.get("result", "")
+        raise RuntimeError("no result event in claude -p output")
+    raise RuntimeError(f"unexpected claude -p output type: {type(envelope).__name__}")
